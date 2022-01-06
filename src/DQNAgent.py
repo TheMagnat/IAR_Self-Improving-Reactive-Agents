@@ -28,7 +28,7 @@ class DQNAgent(object):
         self.C = 1000
         self.batch_size = 32
         self.prior = False
-        self.buffer = Memory(self.N,prior=self.prior)
+        self.buffer = Memory(self.N, prior=self.prior)
         self.optimizer = torch.optim.Adam(self.net.parameters(),lr=self.lr)
         self.nb_iter = 0
 

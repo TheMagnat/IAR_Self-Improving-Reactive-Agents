@@ -1,81 +1,103 @@
 import matplotlib
-matplotlib.use("TkAgg")
+
 import environment
 from datetime import datetime
 import Map
-
-
 
 from torch.utils.tensorboard import SummaryWriter
 
 from DQNAgent import DQNAgent
 
+matplotlib.use("TkAgg")
+
+
 writer = SummaryWriter("runs_DQN/runs"+datetime.now().strftime("%Y%m%d-%H%M%S"))
 
 
 
-if __name__ == '__main__':
-    Map1=Map.Map1.copy()
-    env = environment.Environment(foodNumber=15,env_map=Map1)
+def classicTrain(agentName, env):
 
-    freqTest = 100
-    freqSave = 100
-    nbTest = 10
-    episode_count= 5000
+    playsCount = 300
+
+    trainPerPlay = 20
+    testPerPlay = 50
+
+    freqSave = 30
+
+    #freqTest = 100
+    
+    #nbTest = 10
+    #episode_count = 5000
 
     agent = DQNAgent(env.rotation)
 
-    rsum = 0
-    mean = 0
-    itest = 0
-    reward = 0
-    done = False
-    for i in range(episode_count):
-        
-        rsum = 0
-        ob = env.reset()
+    ###Simulation definition
+    def simulation(env, agent, test=False):
 
-        
-        # C'est le moment de tester l'agent
-        if i % freqTest == 0 and i >= freqTest:  ##### Same as train for now
-            print("Test time! ")
-            mean = 0
-            agent.test = True
-
-        # On a fini cette session de test
-        if i % freqTest == nbTest and i > freqTest:
-            print("End of test, mean reward=", mean / nbTest)
-            itest += 1
-            writer.add_scalar("rewardTest", mean / nbTest, itest)
-            agent.test = False
-
-        # C'est le moment de sauver le modèle
-        if i % freqSave == 0:
-            agent.save('DQN' + "/save_" + str(i))
+        agent.test = test
 
         j = 0
+        rsum = 0
+        ob = env.reset()
         
         while True:
             
-            action= agent.act(ob)
-            # print(action)
+            action = agent.act(ob)
             new_ob, reward, done = env.step(action)
             
-            j+=1
+            j += 1
 
-            agent.store(ob, action, new_ob, reward, done,j)
-            ob=new_ob
+            if not test:
+                agent.store(ob, action, new_ob, reward, done, j)
+                agent.learn()
+                    
+            ob = new_ob
+
+            #to save
             rsum += reward
             
-            agent.learn()
-            
             if done:
-                
-                # print(str(i) + " rsum=" + str(rsum) + ", " + str(j) + " actions ","    ")
-                writer.add_scalar("reward", rsum, i)
-                mean += rsum
-                rsum = 0
-
                 break
 
+        return rsum, env.foodEaten()
+    ###Simulation definition
 
+
+    csvFile = open(f'{agentName}.csv', 'w')
+    csvFile.write('play,mean_rewards,mean_food_eaten\n')
+
+    for i in range(playsCount):
+
+        
+        for t_i in range(trainPerPlay):
+            rsum, foodEaten = simulation(env, agent, test=False)
+
+
+        meanRsum, meanFoodEaten = 0, 0
+        for t_i in range(testPerPlay):
+
+            rsum, foodEaten = simulation(env, agent, test=True)
+
+            meanRsum += rsum
+            meanFoodEaten += foodEaten
+
+        meanRsum /= testPerPlay
+        meanFoodEaten /= testPerPlay
+
+        csvFile.write(f'{i+1},{meanRsum},{meanFoodEaten}\n')
+        
+        if (i+1) % freqSave == 0 or (i+1) == playsCount:
+            agent.save(f'DQN/save_{i+1}')
+
+    csvFile.close()
+
+
+
+if __name__ == '__main__':
+
+    Map1 = Map.Map1.copy()
+    env = environment.Environment(foodNumber=15, env_map=Map1)
+    
+    method = "DQN-r(random)"
+
+    classicTrain(f'runs/{method}/{method}_{datetime.now().strftime("%m_%d-%H_%M")}', env)

@@ -22,8 +22,10 @@ writer = SummaryWriter("runs/runs"+datetime.now().strftime("%Y%m%d-%H%M%S"))
             
 
 if __name__ == '__main__':
-    Map1=Map.Map1.copy()
-    env = environment.Environment(foodNumber=15,env_map=Map1)
+
+    Map1 = Map.Map1.copy()
+    env  = environment.Environment(foodNumber=15,env_map=Map1)
+
     episode_count = 10000000
 
     agent = DQNAgent(env.rotation)
@@ -41,12 +43,12 @@ if __name__ == '__main__':
         rsum = 0
         ob = env.reset()
         
-        init_affichage=0
+        init_affichage = 0
         j = 0
         
         while True:
-            j+=1
-            action= agent.act(ob)
+            j += 1
+            action = agent.act(ob)
             new_ob, reward, done = env.step(action)
             ob=new_ob
             Affichage=env.render(show=False)
@@ -62,8 +64,10 @@ if __name__ == '__main__':
                 init_affichage=0
                 plt.show(block=False)
                 plt.pause(0.1)
+
                 print(str(i) + " rsum=" + str(rsum) + ", " + str(j) + " actions ")
                 writer.add_scalar("reward", rsum, i)
+
                 mean += rsum
                 rsum = 0
                 break

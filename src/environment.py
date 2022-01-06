@@ -98,10 +98,14 @@ class Environment(object):
         self.energy_max=40+15*self.foodNumber_init-self.foodNumber_init
         self.previous_action=np.zeros(len(Actions))
         self.colision_obstacle=0
+
+
+    def foodEaten(self):
+        return self.foodNumber_init - self.foodNumber
         
         
     def reset(self):
-        self.foodNumber=self.foodNumber_init
+        self.foodNumber = self.foodNumber_init
         self.Map=self.Map_init.copy()
         nb_cases_vide=(self.Map==0).sum()
         cases_vide=np.arange(nb_cases_vide)
