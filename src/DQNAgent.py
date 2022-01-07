@@ -24,11 +24,12 @@ class DQNAgent(object):
         self.epsilon = 1
         self.gamma = 0.9
         self.lr = 1e-3
-        self.N = 10000
+        self.N = 100
         self.C = 1000
         self.batch_size = 32
         self.prior = False
-        self.buffer = Memory(self.N, prior=self.prior)
+        self.paperPrior = True
+        self.buffer = Memory(self.N, prior=self.prior, paperPrior=self.paperPrior)
         self.optimizer = torch.optim.Adam(self.net.parameters(),lr=self.lr)
         self.nb_iter = 0
 

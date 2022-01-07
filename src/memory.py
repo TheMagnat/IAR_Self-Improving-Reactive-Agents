@@ -59,17 +59,18 @@ class SumTree:
 
 class Memory:
 
-    def __init__(self, mem_size, prior=True,p_upper=1.,epsilon=.01,alpha=1,beta=1):
+    def __init__(self, mem_size, prior=True, paperPrior=False,p_upper=1.,epsilon=.01,alpha=1,beta=1):
         self.p_upper=p_upper
         self.epsilon=epsilon
         self.alpha=alpha
         self.beta=beta
         self.prior = prior
+        self.paperPrior = paperPrior
         self.nentities=0
         #self.dict={}
         #self.data_len = 2 * feature_size + 2
         self.mem_size = mem_size
-        if prior:
+        if prior and not paperPrior:
             self.tree = SumTree(mem_size)
         else:
 
@@ -83,7 +84,7 @@ class Memory:
     #    return ind
 
     def store(self, transition):
-        if self.prior:
+        if self.prior and not self.paperPrior:
             p = self.tree.max_p
             if not p:
                 p = self.p_upper
@@ -104,7 +105,7 @@ class Memory:
         return idx
 
     def sample(self, n):
-        if self.prior:
+        if self.prior and not self.paperPrior:
             min_p = self.tree.min_p
             if min_p==0:
                 min_p=self.epsilon**self.alpha
@@ -121,6 +122,18 @@ class Memory:
                 w[i] = (p / min_p) ** (-self.beta)
                 a += seg
             return idx, w, batch
+        if self.paperPrior:
+            w = min(3, 1 + 0.02 * self.nentities)
+
+            mask = np.array([int(self.nentities * np.log(1 + np.random.random() * (np.exp(w) - 1))/w) for i in range(n)])
+
+            mask = (mask + self.mem_ptr) % self.nentities
+
+
+            #mask = np.random.choice(range(self.nentities), n)
+
+            return mask, 0,  self.mem[mask]
+
         else:
             mask = np.random.choice(range(self.nentities), n)
             return mask, 0,  self.mem[mask]

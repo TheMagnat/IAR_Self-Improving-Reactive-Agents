@@ -1,4 +1,5 @@
 import matplotlib
+from tqdm import tqdm
 
 import environment
 from datetime import datetime
@@ -66,7 +67,7 @@ def classicTrain(agentName, env):
     csvFile = open(f'{agentName}.csv', 'w')
     csvFile.write('play,mean_rewards,mean_food_eaten\n')
 
-    for i in range(playsCount):
+    for i in tqdm(range(playsCount)):
 
         
         for t_i in range(trainPerPlay):
@@ -98,6 +99,6 @@ if __name__ == '__main__':
     Map1 = Map.Map1.copy()
     env = environment.Environment(foodNumber=15, env_map=Map1)
     
-    method = "DQN-r(random)"
+    method = "DQN-r(no_buffer)"
 
-    classicTrain(f'runs/{method}/{method}_{datetime.now().strftime("%m_%d-%H_%M")}', env)
+    classicTrain(f'runs/{method}/{method}_{datetime.now().strftime("%m_%d-%H_%M_%S")}', env)
