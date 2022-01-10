@@ -161,3 +161,24 @@ class Memory:
         else:
             data=self.mem[idx]
         return data
+
+
+
+class MemoryCourse:
+
+    def __init__(self):
+
+        self.mem = []
+
+
+    def store(self, transition):
+        
+        self.mem.append(transition)
+
+        return len(self.mem) - 1
+
+    def getLast(self):
+        return self.mem[-1]
+
+    def getAll(self):
+        return self.mem
