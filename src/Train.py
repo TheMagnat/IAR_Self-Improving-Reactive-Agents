@@ -14,7 +14,7 @@ import os
 matplotlib.use("TkAgg")
 
 
-writer = SummaryWriter("runs_DQN/runs"+datetime.now().strftime("%Y%m%d-%H%M%S"))
+#writer = SummaryWriter("runs_DQN/runs"+datetime.now().strftime("%Y%m%d-%H%M%S"))
 
 
 
@@ -152,11 +152,11 @@ def playThenBatchTrain(agentName, env, mode=0):
         
         for t_i in range(trainPerPlay):
             rsum, foodEaten = simulation(env, agent, test=False)
+            agent.saveCourse()
 
 
         meanRsum, meanFoodEaten = 0, 0
         for t_i in range(testPerPlay):
-
             rsum, foodEaten = simulation(env, agent, test=True)
 
             meanRsum += rsum
@@ -169,7 +169,6 @@ def playThenBatchTrain(agentName, env, mode=0):
 
         #Store the course
         agent.test = False
-        agent.saveCourse()
 
         #Mode 3 is without buffer
         if mode != 3:
@@ -201,7 +200,9 @@ if __name__ == '__main__':
         method = "DQN"
     
 
-    directory = f"runs_v2/{method}"
+    #method = "Debug"
+
+    directory = f"runs_v3/{method}"
 
     if not os.path.exists(directory):
         os.makedirs(directory)
