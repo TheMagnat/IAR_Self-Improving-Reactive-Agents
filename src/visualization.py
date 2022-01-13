@@ -8,8 +8,6 @@ import os
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
-runsPath = "runs"
-
 
 def load(path):
 
@@ -20,37 +18,22 @@ def load(path):
 		for entry in entries:
 			if entry.is_dir():
 
-				print(f"{entry.name}:")
-
 				allNames.append(entry.name)
 				allRuns.append([])
 
-				for file in glob.glob(f"{entry.path}/{entry.name}*.csv"):
+				for file in glob.glob(f"{entry.path}/*.csv"):
 					tab = np.genfromtxt(file, delimiter=',')
 					allRuns[-1].append(tab[1:])
+
+
 
 	return allNames, np.array(allRuns)
 
 
 def visualize(methodsNames, methodsData, which=2):
 
-	# Fixing random state for reproducibility
-	np.random.seed(19680801)
-
 	nbPlays = methodsData[0][0].shape[0]
 	t = np.arange(nbPlays)
-
-	# an (Nsteps x Nwalkers) array of random walk steps
-	#S1 = 0.004 + 0.02*np.random.randn(Nsteps, Nwalkers)
-	#S2 = 0.002 + 0.01*np.random.randn(Nsteps, Nwalkers)
-
-	# an (Nsteps x Nwalkers) array of random walker positions
-	#X1 = S1.cumsum(axis=0)
-	#X2 = S2.cumsum(axis=0)
-
-
-	# Nsteps length arrays empirical means and standard deviations of both
-	# populations over time
 
 	fig, ax = plt.subplots(1)
 
@@ -62,6 +45,7 @@ def visualize(methodsNames, methodsData, which=2):
 		sigma = npMethod.std(axis=0)
 
 		muW = savgol_filter(mu, 11, 2)
+		#sigmaW = savgol_filter(sigma, 11, 2)
 
 		ax.plot(t, muW, lw=2, label=name)
 		
@@ -76,15 +60,17 @@ def visualize(methodsNames, methodsData, which=2):
 	plt.show()
 
 
+###Start
+runsPath = "runs_v3"
+
 allNames, allRuns = load(runsPath)
 
+seuil = 12.0
 
-print(type(allRuns[0]))
+print("Number of Plays with mea")
+for name, run in zip(allNames, allRuns):
+	print(name, ":", (run[:, :, 2] > seuil).sum())
+	# print(allNames[0], (allRuns[0, :, 200:300, 2].mean()))
 
-#print( np.array(allRuns).shape )
-
-#rez = allRuns[:, :, :, 2]
-
-#print(rez.shape)
 
 visualize(allNames, allRuns, which=2)

@@ -85,7 +85,7 @@ def classicTrain(agentName, env):
         csvFile.write(f'{i+1},{meanRsum},{meanFoodEaten}\n')
         
         if (i+1) % freqSave == 0 or (i+1) == playsCount:
-            agent.save(f'DQN/save_{i+1}')
+            agent.save(f'DQN/save_{i+1}_{agentName}')
 
     csvFile.close()
 
@@ -176,7 +176,7 @@ def playThenBatchTrain(agentName, env, mode=0):
 
         
         if (i+1) % freqSave == 0 or (i+1) == playsCount:
-            agent.save(f'DQN/save_{i+1}')
+            agent.save(f'DQN/save_{i+1}_{agentName}')
 
 
     csvFile.close()
